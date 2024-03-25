@@ -1,0 +1,69 @@
+"A datetime string with format `Y-m-d H:i:s`, e.g. `2018-05-23 13:43:32`."
+scalar DateTime @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\DateTime")
+
+"Indicates what fields are available at the top level of a query operation."
+type Query {
+    "Find a single user by an identifying attribute."
+    user(
+      "Search by primary key."
+      id: ID @eq @rules(apply: ["prohibits:email", "required_without:email"])
+
+      # "Search by email address."
+      # email: String @eq @rules(apply: ["prohibits:id", "required_without:id", "email"])
+    ): User @find
+
+    "List all users."
+    users: [User!]! @paginate(defaultCount: 10)
+
+    "List all Todos by specific User"
+    todos(user_id: ID @eq): [Todo!]! @all
+
+    "Get specific Todo item"
+    todo(id: ID @eq): Todo @find
+}
+
+"Account of a person who utilizes this application."
+type User {
+    "Unique primary key."
+    id: ID!
+
+    "Non-unique name."
+    name: String!
+
+    "Unique email address."
+    email: String!
+
+    # "When the email was verified."
+    # email_verified_at: DateTime
+
+    # "When the account was created."
+    # created_at: DateTime!
+
+    # "When the account was last updated."
+    # updated_at: DateTime!
+
+    todos: [Todo]! @hasMany
+}
+
+type Todo {
+  id: ID!
+  "Todo description - example: Buy food"
+  description: String!
+
+  "Defaults to false"
+  isDone: Boolean
+
+  "The User that created the Todo - foreign key is user_id"
+  owner: User! @belongsTo
+}
+
+type Mutation {
+  "Create New Todo - isDone property is default to false"
+  createTodo(description: String!, user_id: ID!) : Todo! @create
+
+  "Update a specific Todo using id"
+  updateTodo(id: ID!, description: String, isDone: Boolean) : Todo! @update
+
+  "Delete a specific Todo using id"
+  deleteTodo(id: ID! @whereKey) : Todo @delete
+}
