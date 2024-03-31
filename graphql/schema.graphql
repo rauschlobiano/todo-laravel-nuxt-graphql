@@ -20,6 +20,14 @@ type Query {
 
     "Get specific Todo item"
     todo(id: ID @eq): Todo @find
+    
+
+    # Queries With Authentication  -------------------------
+    "Get Authenticated User"
+    profile: User! @auth @guard
+
+    "Get Authenticated Todos"
+    profileTodos(user_id: ID @eq): [Todo!]! @all @guard
 }
 
 "Account of a person who utilizes this application."
@@ -66,4 +74,19 @@ type Mutation {
 
   "Delete a specific Todo using id"
   deleteTodo(id: ID! @whereKey) : Todo @delete
+
+
+  # Mutations With Authentication  --------------------------------- the only difference is the @guard
+  "Login"
+  login(email: String!, password: String!, device: String!): String!
+
+  "Create New Todo - isDone property is default to false"
+  createProfileTodo(description: String!, user_id: ID!) : Todo! @create @guard
+
+  "Update a specific Todo using id"
+  updateProfileTodo(id: ID!, description: String, isDone: Boolean) : Todo! @update @guard
+
+  "Delete a specific Todo using id"
+  deleteProfileTodo(id: ID! @whereKey) : Todo @delete @guard
+  
 }
